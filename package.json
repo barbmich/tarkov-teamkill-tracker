@@ -1,0 +1,27 @@
+{
+    "name": "ttk",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/app.js",
+    "type": "module",
+    "scripts": {
+        "register:all": "tsx ./src/scripts/index.ts",
+        "start:dev": "tsx watch src/app.ts",
+        "build": "tsc src/app.ts",
+        "start": "node dist/src/app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "discord.js": "^14.14.1",
+        "dotenv": "^16.3.1",
+        "drizzle-orm": "^0.29.2",
+        "pg": "^8.11.3"
+    },
+    "devDependencies": {
+        "@types/pg": "^8.10.9",
+        "drizzle-kit": "^0.20.9",
+        "tsx": "^4.7.0"
+    }
+}
