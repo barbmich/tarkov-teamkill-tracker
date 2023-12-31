@@ -1,12 +1,14 @@
+import "./dotenv";
+import { env } from "./env";
 import {
     ChatInputCommandInteraction,
     Client,
     GatewayIntentBits,
 } from "discord.js";
 import { getHandler } from "./utils";
-import { env } from "./env";
 
 export const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
 const TOKEN = env.DISCORD_BOT_TOKEN;
 
 client.on("ready", () => {

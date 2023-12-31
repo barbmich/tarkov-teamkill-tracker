@@ -4,20 +4,21 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 import { desc, sql } from "drizzle-orm";
-import { client } from "src/app";
-import { db } from "src/db";
-import { entries } from "src/db/schema";
-import { env } from "src/env";
-import { Command } from "src/utils";
+import { client } from "../../app";
+import { db } from "../../db";
+import { entries } from "../../db/schema";
+import { env } from "../../env";
+import { Command } from "../../utils";
 
 export default new Command({
     name: "tarkov_teamkill_leaderboard",
     description: "Shows the current leaderboard",
     command: new SlashCommandBuilder(),
     handler: async (interaction: ChatInputCommandInteraction) => {
-        await interaction.reply({
-            embeds: [await getLeaderboardEmbed()],
-        });
+        const content = await getLeaderboardEmbed();
+        await interaction.reply(
+            typeof content === "string" ? content : { embeds: [content] }
+        );
     },
 });
 
@@ -31,6 +32,10 @@ async function getLeaderboardEmbed() {
         .where(sql`${entries.suicide} = false`)
         .groupBy(entries.killerUserId)
         .orderBy(desc(entries.killerUserId));
+
+    if (data.length === 0) {
+        return "No entries yet!";
+    }
 
     const list = data.map((entry) => ({
         ...entry,

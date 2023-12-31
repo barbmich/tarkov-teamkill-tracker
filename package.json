@@ -2,13 +2,12 @@
     "name": "ttk",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/app.js",
-    "type": "module",
+    "main": "dist/src/app.js",
+    "type": "commonjs",
     "scripts": {
         "register:all": "tsx ./src/scripts/index.ts",
         "start:dev": "tsx watch src/app.ts",
-        "build": "tsc src/app.ts",
-        "start": "node dist/src/app.js",
+        "start": "tsx src/app.ts",
         "drizzle:push": "drizzle-kit push:pg"
     },
     "keywords": [],

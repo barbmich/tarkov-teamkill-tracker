@@ -13,4 +13,6 @@ export const entries = pgTable("entries", {
     timestamp: timestamp("timestamp").notNull().defaultNow(),
     suicide: boolean("suicide").default(false),
     patch: varchar("game_patch").default(process.env.GAME_CURRENT_PATCH!),
+    enteredBy: varchar("entered_by").notNull(),
+    interactionId: varchar("interaction_id").notNull(),
 });

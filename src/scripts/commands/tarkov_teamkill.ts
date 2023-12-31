@@ -1,13 +1,14 @@
 import {
     ChatInputCommandInteraction,
+    Guild,
     SlashCommandBuilder,
     User,
 } from "discord.js";
-import { client } from "src/app";
-import { db } from "src/db";
-import { entries } from "src/db/schema";
-import { env } from "src/env";
-import { Command } from "src/utils";
+import { client } from "../../app";
+import { db } from "../../db";
+import { entries } from "../../db/schema";
+import { env } from "../../env";
+import { Command } from "../../utils";
 import z from "zod";
 
 const TarkovTeamkillSchema = z.object({
@@ -51,6 +52,8 @@ export default new Command({
                 killerUserId: killer.id,
                 killedUserId: victim.id,
                 suicide: isSuicide,
+                enteredBy: interaction.user.id,
+                interactionId: interaction.id,
             })
             .returning({
                 timestampDate: entries.timestamp,
@@ -93,22 +96,53 @@ async function checkTarkovRole(
     victim: User,
     interaction: ChatInputCommandInteraction
 ) {
-    const guild = client.guilds.cache.get(env.DISCORD_BOT_GUILD_ID);
-    const role = guild?.roles.cache.get(env.DISCORD_GUILD_TARKOV_ROLE_ID);
+    const guild = getGuildCache();
+    if (!guild) {
+        throw new Error("guild not found");
+    }
 
-    if (role?.members.has(killer.id) === false) {
+    const tarkovRole = getRoleCache(guild);
+    if (!tarkovRole) {
+        throw new Error("role not found");
+    }
+
+    const adminRole = guild.roles.cache.find(
+        (guild) => guild.name === "capo supremo"
+    );
+
+    if (tarkovRole.members.has(interaction.user.id) === false) {
+        let reply =
+            "You are not a member of the Tarkovians. If you think this is a mistake, contact any of the **capi supremi**";
+        if (adminRole) {
+            reply += `: ${adminRole.members
+                .map((member) => member.user.username)
+                .join(", ")}`;
+        }
+        await interaction.reply(reply);
+        return true;
+    }
+
+    if (tarkovRole.members.has(killer.id) === false) {
         await interaction.reply(
-            `The killer is not a member of the Tarkov role.`
+            `The killer is not a member of the Tarkovians.`
         );
         return true;
     }
 
-    if (role?.members.has(victim.id) === false) {
+    if (tarkovRole.members.has(victim.id) === false) {
         await interaction.reply(
-            `The victim is not a member of the Tarkov role.`
+            `The victim is not a member of the Tarkovians.`
         );
         return true;
     }
 
     return false;
+}
+
+function getGuildCache() {
+    return client.guilds.cache.get(env.DISCORD_BOT_GUILD_ID);
+}
+
+function getRoleCache(guild: Guild) {
+    return guild.roles.cache.get(env.DISCORD_GUILD_TARKOV_ROLE_ID);
 }

@@ -2,10 +2,18 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import path from "path";
 import fs from "fs/promises";
 
-export const CWD = process.cwd();
+export const isCompiled = __filename.endsWith(".js");
+const CWD = process.cwd() + (isCompiled ? "/dist" : "");
+
 export const NODE_ENV = process.env.NODE_ENV ?? "development";
 export const getCommands = async () => {
-    const commandsFolder = path.resolve(CWD, "src", "scripts", "commands");
+    const projectFolder = isCompiled ? "dist/src" : "src";
+    const commandsFolder = path.resolve(
+        CWD,
+        projectFolder,
+        "scripts",
+        "commands"
+    );
 
     const commands: SlashCommandBuilder[] = [];
     for (const file of await fs.readdir(commandsFolder)) {
