@@ -9,7 +9,7 @@ export const EnvSchema = z.object({
         process.env.CI === "true"
             ? z.undefined()
             : z.string().min(1).optional(),
-    PRIVATE_DATABASE_URL:
+    DATABASE_PRIVATE_URL:
         process.env.CI === "true" ? z.string().min(1) : z.undefined(),
 
     // // Discord
@@ -23,3 +23,5 @@ export const EnvSchema = z.object({
 });
 
 export const env = EnvSchema.parse(process.env);
+
+console.log(env);
