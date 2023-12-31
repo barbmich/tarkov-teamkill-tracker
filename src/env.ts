@@ -5,12 +5,7 @@ export const EnvSchema = z.object({
     NODE_ENV: z.enum(["development", "production"]).default("development"),
 
     // Database
-    DATABASE_URL:
-        process.env.CI === "true"
-            ? z.undefined()
-            : z.string().min(1).optional(),
-    DATABASE_PRIVATE_URL:
-        process.env.CI === "true" ? z.string().min(1) : z.undefined(),
+    DATABASE_URL: z.string().min(1),
 
     // // Discord
     DISCORD_BOT_TOKEN: z.string().min(1),
