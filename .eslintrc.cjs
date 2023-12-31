@@ -24,5 +24,9 @@ module.exports = {
     plugins: ["@typescript-eslint"],
     rules: {
         "@typescript-eslint/require-await": ["error"],
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            { argsIgnorePattern: "^_" },
+        ],
     },
 };

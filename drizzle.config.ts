@@ -1,7 +1,15 @@
-import { loadConfig } from "./src/utils";
-loadConfig;
-
 import type { Config } from "drizzle-kit";
+
+// this file doesn't support top-level await
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({
+    path: path.resolve(
+        process.cwd(),
+        `.env.${process.env.NODE_ENV ?? "development"}`
+    ),
+});
 
 export default {
     schema: "./src/db/schema.ts",

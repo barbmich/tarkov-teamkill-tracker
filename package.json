@@ -8,7 +8,8 @@
         "register:all": "tsx ./src/scripts/index.ts",
         "start:dev": "tsx watch src/app.ts",
         "build": "tsc src/app.ts",
-        "start": "node dist/src/app.js"
+        "start": "node dist/src/app.js",
+        "drizzle:push": "drizzle-kit push:pg"
     },
     "keywords": [],
     "author": "",
@@ -24,6 +25,7 @@
         "@types/pg": "^8.10.9",
         "@typescript-eslint/eslint-plugin": "^6.16.0",
         "@typescript-eslint/parser": "^6.16.0",
+        "dotenv-cli": "^7.3.0",
         "drizzle-kit": "^0.20.9",
         "eslint": "^8.56.0",
         "tsx": "^4.7.0",
