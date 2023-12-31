@@ -24,7 +24,9 @@ export const getHandler = async (handlerName: string) => {
     return handler.default.handler;
 };
 
-interface ICommand {
+export interface ICommand {
+    name: string;
+    description: string;
     command: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
     handler: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }
@@ -57,12 +59,3 @@ export class Command implements ICommand {
         this.command.setDescription(this.description);
     }
 }
-
-import { config } from "dotenv";
-
-export const loadConfig = config({
-    path: path.resolve(
-        process.cwd(),
-        `.env.${process.env.NODE_ENV ?? "development"}`
-    ),
-});

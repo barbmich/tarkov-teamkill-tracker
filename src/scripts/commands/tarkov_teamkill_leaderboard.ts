@@ -6,6 +6,6 @@ export default new Command({
     description: "Shows the current leaderboard",
     command: new SlashCommandBuilder(),
     handler: async (interaction: ChatInputCommandInteraction) => {
-        interaction.reply("tarkov_teamkill_leaderboard");
+        await interaction.reply("tarkov_teamkill_leaderboard");
     },
 });

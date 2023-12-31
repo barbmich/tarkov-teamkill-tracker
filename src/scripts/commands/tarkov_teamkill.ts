@@ -1,5 +1,19 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    User,
+} from "discord.js";
+import { client } from "src/app";
+import { db } from "src/db";
+import { entries } from "src/db/schema";
+import { env } from "src/env";
 import { Command } from "src/utils";
+import z from "zod";
+
+const TarkovTeamkillSchema = z.object({
+    killer: z.custom<User>(),
+    victim: z.custom<User>(),
+});
 
 export default new Command({
     name: "tarkov_teamkill",
@@ -17,7 +31,84 @@ export default new Command({
                 .setDescription("The victim")
                 .setRequired(true)
         ),
+
     handler: async (interaction: ChatInputCommandInteraction) => {
-        interaction.reply("tarkov_teamkill");
+        const { killer, victim } = TarkovTeamkillSchema.parse({
+            killer: interaction.options.getUser("killer"),
+            victim: interaction.options.getUser("victim"),
+        });
+
+        const isCheckTrue = await checkTarkovRole(killer, victim, interaction);
+        if (isCheckTrue) {
+            return;
+        }
+
+        const isSuicide = getIsSuicide(killer, victim);
+
+        const response = await db
+            .insert(entries)
+            .values({
+                killerUserId: killer.id,
+                killedUserId: victim.id,
+                suicide: isSuicide,
+            })
+            .returning({
+                timestampDate: entries.timestamp,
+            });
+
+        if (response.length !== 1) {
+            throw new Error(
+                `got a different response than 1 when adding teamkill: ${
+                    killer.username
+                } killed ${victim.username} at ${Date.now()}, interaction id: ${
+                    interaction.id
+                }`
+            );
+        }
+
+        const timestampUnix = Math.floor(
+            new Date(response[0].timestampDate).getTime() / 1000
+        );
+
+        const reply = getReply(killer, victim, timestampUnix);
+
+        await interaction.reply(reply);
     },
 });
+
+function getIsSuicide(killer: User, victim: User) {
+    return killer.id === victim.id;
+}
+
+function getReply(killer: User, victim: User, timestamp: number) {
+    if (getIsSuicide(killer, victim)) {
+        return `Added kill to database: **${killer.username}** killed themselves on <t:${timestamp}>`;
+    }
+
+    return `Added kill to database: **${killer.username}** killed **${victim.username}** at <t:${timestamp}>`;
+}
+
+async function checkTarkovRole(
+    killer: User,
+    victim: User,
+    interaction: ChatInputCommandInteraction
+) {
+    const guild = client.guilds.cache.get(env.DISCORD_BOT_GUILD_ID);
+    const role = guild?.roles.cache.get(env.DISCORD_GUILD_TARKOV_ROLE_ID);
+
+    if (role?.members.has(killer.id) === false) {
+        await interaction.reply(
+            `The killer is not a member of the Tarkov role.`
+        );
+        return true;
+    }
+
+    if (role?.members.has(victim.id) === false) {
+        await interaction.reply(
+            `The victim is not a member of the Tarkov role.`
+        );
+        return true;
+    }
+
+    return false;
+}
