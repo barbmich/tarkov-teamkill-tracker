@@ -3,7 +3,7 @@ import {
     EmbedBuilder,
     SlashCommandBuilder,
 } from "discord.js";
-import { desc, sql } from "drizzle-orm";
+import { asc, sql } from "drizzle-orm";
 import { client } from "../../app";
 import { db } from "../../db";
 import { entries } from "../../db/schema";
@@ -31,7 +31,7 @@ async function getLeaderboardEmbed() {
         .from(entries)
         .where(sql`${entries.suicide} = false`)
         .groupBy(entries.killerUserId)
-        .orderBy(desc(entries.killerUserId));
+        .orderBy(asc(entries.killerUserId));
 
     if (data.length === 0) {
         return "No entries yet!";
