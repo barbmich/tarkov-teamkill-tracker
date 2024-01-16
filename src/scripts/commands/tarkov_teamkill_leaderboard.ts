@@ -15,6 +15,7 @@ export default new Command({
     description: "Shows the current leaderboard",
     command: new SlashCommandBuilder(),
     handler: async (interaction: ChatInputCommandInteraction) => {
+        console.log("pog");
         const content = await getLeaderboardEmbed();
         await interaction.reply(
             typeof content === "string" ? content : { embeds: [content] }
@@ -25,7 +26,7 @@ export default new Command({
 async function getLeaderboardEmbed() {
     const data = await db
         .select({
-            killer: entries.killerUserId,
+            killerId: entries.killerUserId,
             count: sql<number>`cast(count(${entries.killerUserId}) as int)`,
         })
         .from(entries)
@@ -37,9 +38,11 @@ async function getLeaderboardEmbed() {
         return "No entries yet!";
     }
 
+    const guild = await client.guilds.fetch(env.DISCORD_BOT_GUILD_ID);
+
     const list = data.map((entry) => ({
         ...entry,
-        killer: client.users.cache.get(entry.killer)?.username,
+        killer: guild?.members.cache.get(entry.killerId)?.displayName,
     }));
 
     return new EmbedBuilder()
